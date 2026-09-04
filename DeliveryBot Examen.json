@@ -9,13 +9,13 @@
         ],
         "additionalFields": {}
       },
-      "id": "5d08286a-ec6f-4c7e-a3aa-fd7f3b659065",
+      "id": "13460d89-359a-4f4f-b517-ebcedafb17ab",
       "name": "Telegram Trigger",
       "type": "n8n-nodes-base.telegramTrigger",
       "typeVersion": 1.1,
       "position": [
-        -77680,
-        -689200
+        -78400,
+        -689216
       ],
       "webhookId": "3b948b11-0e0a-4d90-938f-d4ca3ae4305d",
       "credentials": {
@@ -29,13 +29,13 @@
       "parameters": {
         "jsCode": "const body = $input.first().json;\nconst esCallback = Boolean(body.callback_query);\nconst chatId = esCallback ? body.callback_query.message.chat.id : body.message.chat.id;\nconst telegramId = esCallback ? body.callback_query.from.id : body.message.from.id;\nconst texto = esCallback ? '' : (body.message.text || '').trim();\nconst callbackData = esCallback ? body.callback_query.data : '';\nconst nombreCompleto = esCallback ? `${body.callback_query.from.first_name || ''} ${body.callback_query.from.last_name || ''}`.trim() : `${body.message.from.first_name || ''} ${body.message.from.last_name || ''}`.trim();\nreturn [{ json: { chatId, telegramId, texto, callbackData, esCallback, nombreCompleto } }];"
       },
-      "id": "79718887-b19a-4918-ba89-0d40ec230aba",
+      "id": "ec032ba3-3a26-40de-a160-7316d4a23138",
       "name": "Normalizar Update",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -77456,
-        -689200
+        -78176,
+        -689216
       ]
     },
     {
@@ -62,13 +62,13 @@
         },
         "options": {}
       },
-      "id": "6d9bedd5-6e6c-49c6-84e8-b3ab0d227958",
+      "id": "149610e2-0523-405d-b1b5-d95a481bffb0",
       "name": "Leer Sesion",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -77008,
-        -688432
+        -77728,
+        -688448
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -80,15 +80,15 @@
     },
     {
       "parameters": {
-        "jsCode": "const entrada = $('Normalizar Update').first().json;\nconst primerItem = items.length > 0 ? items[0].json : null;\nconst tieneDatos = primerItem && (primerItem.telegram_id || primerItem.pantalla_actual);\nconst sesionExistente = tieneDatos ? primerItem : null;\n\nconst texto = (entrada.texto || '').trim().toLowerCase();\nconst cb = entrada.callbackData || '';\n\nlet carrito = [];\ntry {\n  carrito = (sesionExistente && sesionExistente.carrito_temporal)\n    ? JSON.parse(sesionExistente.carrito_temporal)\n    : [];\n} catch (e) {\n  carrito = [];\n}\n\nlet pantallaActual = 'inicio';\nif (texto === '/start' || texto === 'start' || texto === 'hola' || texto === 'menu' || cb === 'cat_volver') {\n  pantallaActual = 'inicio';\n  if (texto === '/start') carrito = [];\n} else if (cb.startsWith('cat_')) {\n  pantallaActual = 'categoria';\n} else if (cb.startsWith('prod_') || (sesionExistente?.pantalla_actual === 'producto' && !isNaN(parseInt(texto, 10)))) {\n  pantallaActual = 'producto';\n} else if (cb.startsWith('qty_') || (sesionExistente?.pantalla_actual === 'cantidad' && !isNaN(parseInt(texto, 10)))) {\n  pantallaActual = 'cantidad';\n} else if (cb.startsWith('carrito_')) {\n  pantallaActual = 'carrito';\n} else if (cb.startsWith('confirmar_')) {\n  pantallaActual = 'confirmar';\n} else if (sesionExistente && sesionExistente.pantalla_actual) {\n  pantallaActual = sesionExistente.pantalla_actual;\n}\n\nreturn [{\n  json: {\n    ...entrada,\n    existeSesion: Boolean(sesionExistente),\n    pantallaActual,\n    carrito,\n    categoriaTemp: sesionExistente ? (sesionExistente.categoria_temp || '') : '',\n    productoTemp: sesionExistente ? (sesionExistente.producto_temp || '') : ''\n  }\n}];"
+        "jsCode": "const entrada = $('Normalizar Update').first().json;\nconst primerItem = items.length > 0 ? items[0].json : null;\nconst tieneDatos = primerItem && (primerItem.telegram_id || primerItem.pantalla_actual);\nconst sesionExistente = tieneDatos ? primerItem : null;\n\nconst texto = (entrada.texto || '').trim().toLowerCase();\nconst cb = entrada.callbackData || '';\n\nlet carrito = [];\ntry {\n  carrito = (sesionExistente && sesionExistente.carrito_temporal)\n    ? JSON.parse(sesionExistente.carrito_temporal)\n    : [];\n} catch (e) {\n  carrito = [];\n}\n\nlet pantallaActual = 'inicio';\n\nif (texto === '/start' || texto === 'start' || texto === 'hola' || texto === 'menu' || cb === 'cat_volver') {\n  pantallaActual = 'inicio';\n  if (texto === '/start') carrito = [];\n} else if (cb === 'prod_volver') {\n  pantallaActual = 'categoria';\n} else if (cb.startsWith('cat_')) {\n  pantallaActual = 'categoria';\n} else if (cb.startsWith('prod_') || (sesionExistente?.pantalla_actual === 'producto' && !isNaN(parseInt(texto, 10)))) {\n  pantallaActual = 'producto';\n} else if (cb.startsWith('qty_') || (sesionExistente?.pantalla_actual === 'cantidad' && !isNaN(parseInt(texto, 10)))) {\n  pantallaActual = 'cantidad';\n} else if (cb.startsWith('carrito_')) {\n  pantallaActual = 'carrito';\n} else if (cb.startsWith('confirmar_')) {\n  pantallaActual = 'confirmar';\n} else if (sesionExistente && sesionExistente.pantalla_actual) {\n  pantallaActual = sesionExistente.pantalla_actual;\n}\n\nreturn [{\n  json: {\n    ...entrada,\n    existeSesion: Boolean(sesionExistente),\n    pantallaActual,\n    carrito,\n    categoriaTemp: sesionExistente ? (sesionExistente.categoria_temp || '') : '',\n    productoTemp: sesionExistente ? (sesionExistente.producto_temp || '') : ''\n  }\n}];"
       },
-      "id": "1b4ad4d1-c016-4f72-8ed2-d2f004432411",
+      "id": "06ca2eec-d293-4d3d-a908-4977ad88df86",
       "name": "Procesar Sesion",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -76784,
-        -688432
+        -77504,
+        -688448
       ]
     },
     {
@@ -225,13 +225,13 @@
         },
         "options": {}
       },
-      "id": "7290c8ec-d1dc-49d3-b7fa-ba7622679a43",
+      "id": "500011f4-a381-4b49-aa84-d6c6d358b5a4",
       "name": "Enrutar Pantalla",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3,
       "position": [
-        -76560,
-        -688496
+        -77280,
+        -688512
       ]
     },
     {
@@ -269,13 +269,13 @@
         },
         "additionalFields": {}
       },
-      "id": "1e8ab7c8-6072-4849-b1ca-305397cb0905",
+      "id": "cf7e3446-abba-4963-9d76-21f3cf730582",
       "name": "Enviar Categorias",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -76336,
-        -688912
+        -77056,
+        -688928
       ],
       "webhookId": "1530d4e0-dfea-410c-97b3-0d005aef106a",
       "credentials": {
@@ -314,13 +314,13 @@
         },
         "options": {}
       },
-      "id": "035f0535-4d12-42b4-bb64-00833adc2025",
+      "id": "4a6b463c-b661-48a7-a27e-3f188a4d1edd",
       "name": "Guardar Sesion Categoria",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -76112,
-        -688912
+        -76832,
+        -688928
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -332,15 +332,15 @@
     },
     {
       "parameters": {
-        "jsCode": "const entrada = $('Procesar Sesion').first().json;\nconst categoria = entrada.callbackData.replace('cat_', '');\nreturn [{ json: { ...entrada, categoriaElegida: categoria } }];"
+        "jsCode": "const entrada = $('Procesar Sesion').first().json;\nlet categoria = '';\n\nif (entrada.callbackData && entrada.callbackData.startsWith('cat_') && entrada.callbackData !== 'cat_volver') {\n  categoria = entrada.callbackData.replace('cat_', '');\n} else {\n  // Viene de prod_volver u otro caso → usamos la categoría guardada en sesión\n  categoria = entrada.categoriaTemp || '';\n}\n\nif (!categoria) {\n  categoria = 'Bebidas'; // fallback seguro\n}\n\nreturn [{ json: { ...entrada, categoriaElegida: categoria } }];"
       },
-      "id": "71b247c6-7fc2-4670-baf0-3148f10f7867",
+      "id": "b843c656-ed8e-4578-8ed9-c8f4f71b774e",
       "name": "Extraer Categoria",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -76336,
-        -688720
+        -77056,
+        -688736
       ]
     },
     {
@@ -365,13 +365,13 @@
         },
         "options": {}
       },
-      "id": "71551b45-b764-42fc-b377-e8820ce2327d",
+      "id": "9c8e9e93-2c89-46d0-be4d-8d207cd5d419",
       "name": "Leer Menu Categoria",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -76112,
-        -688720
+        -76832,
+        -688736
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -385,13 +385,13 @@
       "parameters": {
         "jsCode": "function getField(obj, keys) {\n  for (const k of keys) {\n    for (const prop in obj) {\n      if (prop.trim().toLowerCase() === k.toLowerCase() && obj[prop] !== undefined && obj[prop] !== '') {\n        return obj[prop];\n      }\n    }\n  }\n  return undefined;\n}\n\nconst rawItems = items.map(i => i.json).filter(i => Object.keys(i).length > 0);\nconst categoria = $('Extraer Categoria').first().json.categoriaElegida;\n\nconst productos = [];\nrawItems.forEach((p, idx) => {\n  const nombre = getField(p, ['nombre', 'producto', 'name', 'articulo', 'descripcion']);\n  if (nombre) {\n    const id = getField(p, ['id_producto', 'id', 'codigo', 'ID_PRODUCTO', 'ID']) || String(idx + 1);\n    const precioRaw = getField(p, ['precio', 'price', 'valor', 'costo']) || 0;\n    const precio = Number(String(precioRaw).replace(/[^0-9.]/g, '')) || 0;\n    productos.push({ id_producto: String(id), nombre: String(nombre), precio });\n  }\n});\n\nlet textoMenu = `🍽️ *Menú de ${categoria}:*\\n\\n`;\nlet tieneProductos = productos.length > 0;\nif (!tieneProductos) {\n  textoMenu += 'No hay productos registrados en esta categoría.\\nRevisa en tu hoja MENU que la columna categoria tenga exactamente: ' + categoria;\n} else {\n  productos.forEach((p, idx) => {\n    textoMenu += `*${idx + 1}.* ${p.nombre} — $${p.precio}\\n`;\n  });\n  textoMenu += '\\n👉 *Selecciona el número del producto:*';\n}\n\nreturn [{\n  json: {\n    chatId: $('Extraer Categoria').first().json.chatId,\n    telegramId: $('Extraer Categoria').first().json.telegramId,\n    carrito: $('Extraer Categoria').first().json.carrito,\n    categoriaElegida: categoria,\n    tieneProductos,\n    listaProductos: JSON.stringify(productos),\n    textoMenu\n  }\n}];"
       },
-      "id": "062f1bf5-e079-4374-bf9c-c2579db0ee7b",
+      "id": "92effaac-50e5-4ecb-9b31-2199adfe15f4",
       "name": "Armar Botones Productos",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -75888,
-        -688720
+        -76608,
+        -688736
       ]
     },
     {
@@ -497,13 +497,13 @@
           "parse_mode": "Markdown"
         }
       },
-      "id": "c1c0b559-5710-40c8-9de5-cb1a4832058e",
+      "id": "5d2d4224-31ed-44fb-8726-704f95074850",
       "name": "Enviar Productos",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -75664,
-        -688720
+        -76384,
+        -688736
       ],
       "webhookId": "5f56f7da-3817-4663-b15b-c52cb9503f4c",
       "credentials": {
@@ -543,13 +543,13 @@
         },
         "options": {}
       },
-      "id": "fce6d25c-5541-422d-82a0-492679d9b1e7",
+      "id": "1cf4d320-fd61-4625-b13b-5d290b6d9666",
       "name": "Guardar Sesion Producto",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -75440,
-        -688720
+        -76160,
+        -688736
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -561,15 +561,15 @@
     },
     {
       "parameters": {
-        "jsCode": "const entrada = $('Procesar Sesion').first().json;\nconst raw = entrada.callbackData || entrada.texto || '';\nconst valor = raw.replace('prod_', '').trim();\nconst num = parseInt(valor, 10);\n\nlet productos = [];\ntry {\n  productos = JSON.parse(entrada.productoTemp || '[]');\n} catch (e) {\n  productos = [];\n}\n\nlet prodElegido = null;\n\nif (!isNaN(num) && num >= 1 && num <= productos.length) {\n  prodElegido = productos[num - 1];\n} else if (productos.some(p => String(p.id_producto) === String(valor))) {\n  prodElegido = productos.find(p => String(p.id_producto) === String(valor));\n} else if (productos.length > 0) {\n  prodElegido = productos[0];\n} else {\n  prodElegido = { \n    id_producto: valor, \n    nombre: 'Producto ' + valor, \n    precio: 0 \n  };\n}\n\nreturn [{\n  json: {\n    ...entrada,\n    productoTemp: JSON.stringify(prodElegido)\n  }\n}];"
+        "jsCode": "const entrada = $('Procesar Sesion').first().json;\nconst raw = entrada.callbackData || entrada.texto || '';\nconst valor = raw.replace('prod_', '').trim();\nconst num = parseInt(valor, 10);\n\nlet productos = [];\ntry {\n  const parsed = JSON.parse(entrada.productoTemp || '[]');\n  if (Array.isArray(parsed)) {\n    productos = parsed;\n  } else if (parsed && typeof parsed === 'object') {\n    // Si viene un solo producto (porque ya se había seleccionado antes), lo convertimos en lista\n    productos = [parsed];\n  }\n} catch (e) {\n  productos = [];\n}\n\nlet prodElegido = null;\n\nif (!isNaN(num) && num >= 1 && num <= productos.length) {\n  prodElegido = productos[num - 1];\n} else if (productos.some(p => String(p.id_producto) === String(valor))) {\n  prodElegido = productos.find(p => String(p.id_producto) === String(valor));\n} else if (productos.length > 0) {\n  prodElegido = productos[0];\n} else {\n  prodElegido = { \n    id_producto: valor, \n    nombre: 'Producto ' + valor, \n    precio: 0 \n  };\n}\n\nreturn [{\n  json: {\n    ...entrada,\n    productoTemp: JSON.stringify(prodElegido)\n  }\n}];"
       },
-      "id": "c7e6d722-276e-4843-a63b-4cca3f1c06cc",
+      "id": "51063a33-edf6-47bd-bb7a-6a17e7938781",
       "name": "Extraer Producto",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -76336,
-        -688528
+        -77056,
+        -688544
       ]
     },
     {
@@ -620,18 +620,30 @@
                   }
                 ]
               }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🔙 Cambiar producto",
+                    "additionalFields": {
+                      "callback_data": "prod_volver"
+                    }
+                  }
+                ]
+              }
             }
           ]
         },
         "additionalFields": {}
       },
-      "id": "f2fcaeeb-a983-4a45-89fc-8df071adbf59",
+      "id": "bcea75fd-d3b0-4e2d-8a34-2054c638fa95",
       "name": "Enviar Botones Cantidad",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -76112,
-        -688528
+        -76832,
+        -688544
       ],
       "webhookId": "7ade8ef5-0a8c-489f-995f-27d21e3052d7",
       "credentials": {
@@ -670,13 +682,13 @@
         },
         "options": {}
       },
-      "id": "ad8951eb-6501-406b-a569-4221e68f4bbf",
+      "id": "97ab1aa5-f890-4d89-85e9-18807b7c3bb6",
       "name": "Guardar Sesion Cantidad",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -75888,
-        -688528
+        -76608,
+        -688544
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -708,13 +720,13 @@
         },
         "options": {}
       },
-      "id": "4e833f0b-6132-4e33-bb2b-48a459fdf2e8",
+      "id": "f51b67a0-9972-46e8-8986-f36e55c61e3b",
       "name": "Leer Producto Elegido",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -76336,
-        -688336
+        -77056,
+        -688352
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -726,15 +738,15 @@
     },
     {
       "parameters": {
-        "jsCode": "const sesion = $('Procesar Sesion').first().json;\nconst raw = sesion.callbackData || sesion.texto || '';\nconst cantidad = Number(raw.replace('qty_', '')) || 1;\n\n// 1. Intentar obtener de Leer Producto Elegido si vino con datos reales\nlet producto = items.length > 0 && items[0].json && items[0].json.nombre ? items[0].json : null;\n\n// 2. Si no, recuperar el JSON del producto que guardamos en la sesión\nif (!producto) {\n  try {\n    producto = JSON.parse(sesion.productoTemp || '{}');\n  } catch (e) {\n    producto = { id_producto: '1', nombre: 'Producto', precio: 0 };\n  }\n}\n\nconst nombre = producto.nombre || 'Producto';\nconst precio = Number(producto.precio) || 0;\nconst id_producto = producto.id_producto || '1';\n\nconst carrito = [...(sesion.carrito || [])];\nconst existente = carrito.find((it) => String(it.id_producto) === String(id_producto));\nif (existente) {\n  existente.cantidad += cantidad;\n} else {\n  carrito.push({ id_producto, nombre, precio, cantidad });\n}\n\nconst total = carrito.reduce((acc, i) => acc + (Number(i.precio) * Number(i.cantidad)), 0);\n\nreturn [{ json: { ...sesion, carrito, total } }];"
+        "jsCode": "const sesion = $('Procesar Sesion').first().json;\nconst raw = sesion.callbackData || sesion.texto || '';\nconst cantidad = Number(raw.replace('qty_', '')) || 1;\n\nlet producto = null;\n\nif (items.length > 0 && items[0].json && (items[0].json.nombre || items[0].json.Nombre)) {\n  producto = items[0].json;\n} else {\n  try {\n    producto = JSON.parse(sesion.productoTemp || '{}');\n  } catch (e) {\n    producto = { id_producto: '1', nombre: 'Producto', precio: 0 };\n  }\n}\n\nconst nombre = producto.nombre || producto.Nombre || 'Producto';\nconst precio = Number(producto.precio || producto.Precio || 0) || 0;\nconst id_producto = String(producto.id_producto || producto.ID_PRODUCTO || producto.id || '1');\n\nlet carrito = [];\ntry {\n  carrito = Array.isArray(sesion.carrito) ? [...sesion.carrito] : JSON.parse(sesion.carrito_temporal || '[]');\n} catch (e) {\n  carrito = [];\n}\n\nconst existente = carrito.find(it => String(it.id_producto) === id_producto);\nif (existente) {\n  existente.cantidad = Number(existente.cantidad || 0) + cantidad;\n} else {\n  carrito.push({ id_producto, nombre, precio, cantidad });\n}\n\nconst total = carrito.reduce((acc, i) => acc + (Number(i.precio) * Number(i.cantidad)), 0);\n\nreturn [{\n  json: {\n    ...sesion,\n    carrito,\n    total\n  }\n}];"
       },
-      "id": "2ae7c745-10e1-4b87-8fd8-44b7808bddcd",
+      "id": "f87ac961-d714-40cb-8248-6b042f050d91",
       "name": "Agregar Al Carrito",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -76112,
-        -688336
+        -76832,
+        -688352
       ]
     },
     {
@@ -766,13 +778,13 @@
         },
         "additionalFields": {}
       },
-      "id": "b5b2aa3d-905f-474c-9642-4a078ef94f74",
+      "id": "4379a6ad-a277-4af9-85b1-6986ffe4107b",
       "name": "Enviar Resumen Carrito",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -75888,
-        -688336
+        -76608,
+        -688352
       ],
       "webhookId": "eed41615-90b8-44f7-9213-54ccfa79bcdd",
       "credentials": {
@@ -811,13 +823,13 @@
         },
         "options": {}
       },
-      "id": "53db9f54-5d9d-44c1-9d4e-5273faeeb8d1",
+      "id": "30c1499a-cfc2-406c-9d04-c7b8a0deae0c",
       "name": "Guardar Sesion Carrito",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -75664,
-        -688336
+        -76384,
+        -688352
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -877,13 +889,13 @@
         },
         "options": {}
       },
-      "id": "3e3ab6da-7778-488b-949d-404df96dc32e",
+      "id": "d967af1e-bc75-4cf3-90f9-eaefa7d33ada",
       "name": "Rama Carrito",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3,
       "position": [
-        -76336,
-        -688048
+        -77056,
+        -688064
       ]
     },
     {
@@ -921,13 +933,13 @@
         },
         "additionalFields": {}
       },
-      "id": "d41db9bd-a319-4e2d-8196-f8a282b49681",
+      "id": "db99aee5-3e79-414e-ac38-48cab9ecd1e3",
       "name": "Reenviar Categorias",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -76112,
-        -688144
+        -76832,
+        -688160
       ],
       "webhookId": "9a9bac21-05be-46c6-84b6-f0b21879a0dc",
       "credentials": {
@@ -965,13 +977,13 @@
         },
         "options": {}
       },
-      "id": "782fabc0-c11f-4a84-8236-67ac87d7e817",
+      "id": "b7975e42-e880-4533-80cf-8b5612e0d448",
       "name": "Volver A Categoria",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -75888,
-        -688144
+        -76608,
+        -688160
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -1010,13 +1022,13 @@
         },
         "additionalFields": {}
       },
-      "id": "6195394e-b5bf-4392-9daf-610c24691741",
+      "id": "41088dc7-28e6-4ab1-9acf-6827b502a97a",
       "name": "Enviar Confirmacion",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -76112,
-        -687952
+        -76832,
+        -687968
       ],
       "webhookId": "1d7918f4-cf34-4f4e-8ae5-159a2cc1372f",
       "credentials": {
@@ -1054,13 +1066,13 @@
         },
         "options": {}
       },
-      "id": "fb290ff5-4b7f-44b8-80d9-2e4ab39a65ee",
+      "id": "8ee37c59-1e99-4fc7-bf81-2803f1882099",
       "name": "Guardar Sesion Confirmar",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -75888,
-        -687952
+        -76608,
+        -687968
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -1120,26 +1132,26 @@
         },
         "options": {}
       },
-      "id": "5e969b25-c8b4-4811-94c8-40cfe297ceaa",
+      "id": "3c1a555f-4eff-4a9b-a564-80a71521d604",
       "name": "Rama Confirmar",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3,
       "position": [
-        -76336,
-        -687664
+        -77056,
+        -687680
       ]
     },
     {
       "parameters": {
         "jsCode": "const sesion = $('Procesar Sesion').first().json;\nconst idPedido = 'PED-' + Date.now();\nconst total = sesion.carrito.reduce((a, i) => a + i.precio * i.cantidad, 0);\nconst detalles = sesion.carrito.map(i => `${i.cantidad}x ${i.nombre}`).join(', ');\nconst ahora = new Date();\nreturn [{\n  json: {\n    chatId: sesion.chatId,\n    telegramId: sesion.telegramId,\n    id_usuario: sesion.telegramId,\n    idPedido,\n    id_pedido: idPedido,\n    detalles,\n    total,\n    fecha: ahora.toISOString().split('T')[0],\n    hora: ahora.toTimeString().split(' ')[0],\n    estado: 'En preparación',\n    carrito: sesion.carrito\n  }\n}];"
       },
-      "id": "65d88693-5d07-4a30-9f76-1e899952c630",
+      "id": "39080290-ebf6-432a-8ccb-174b29b74c68",
       "name": "Armar Pedido",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -76112,
-        -687760
+        -76832,
+        -687776
       ]
     },
     {
@@ -1165,13 +1177,13 @@
         },
         "options": {}
       },
-      "id": "56c5eae0-2933-4c9a-9b44-50fea436aebe",
+      "id": "f61fecbe-fc3c-4ede-90ad-3855a39affe5",
       "name": "Guardar Pedido",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -75888,
-        -687760
+        -76608,
+        -687776
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -1186,13 +1198,13 @@
         "fieldToSplitOut": "carrito",
         "options": {}
       },
-      "id": "52149862-99f0-4ca0-a03b-45105dde6f4b",
+      "id": "f6eb99cb-2aaa-4b3b-99d5-68467507bc46",
       "name": "Separar Items Carrito",
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        -75664,
-        -687760
+        -76384,
+        -687776
       ]
     },
     {
@@ -1217,13 +1229,13 @@
         },
         "options": {}
       },
-      "id": "0904d08b-e839-4cf1-9d63-f0cc361b4ab5",
+      "id": "e21cb0f7-b108-4bc3-b240-14f482d755c1",
       "name": "Leer Stock Actual",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -75440,
-        -687760
+        -76160,
+        -687776
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -1261,13 +1273,13 @@
         },
         "options": {}
       },
-      "id": "1e79091a-290d-462c-9273-0376d4d2ca0f",
+      "id": "eb3ae829-bca8-45d1-ad7d-193684f67e30",
       "name": "Descontar Stock",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -74992,
-        -687760
+        -75712,
+        -687776
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -1284,13 +1296,13 @@
         "text": "=✅ ¡Pedido {{ $('Armar Pedido').first().json.idPedido }} confirmado! Total: ${{ $('Armar Pedido').first().json.total }}. Te avisaremos cuando cambie de estado.",
         "additionalFields": {}
       },
-      "id": "15e1105b-e615-40e7-8502-201f8f14cba9",
+      "id": "c857a1ce-fec5-4100-a7df-82a0e0b9e887",
       "name": "Confirmar Al Cliente",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -75664,
-        -688048
+        -76384,
+        -688064
       ],
       "webhookId": "dc6c490a-e8ee-41ed-8af9-c291662632c0",
       "credentials": {
@@ -1359,13 +1371,13 @@
         },
         "additionalFields": {}
       },
-      "id": "1dbe3dd9-64e8-4c1a-8eb0-1a47c2c4aeb6",
+      "id": "784e8468-6986-4551-abad-4576365238a0",
       "name": "Notificar Cocina",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -75664,
-        -687568
+        -76384,
+        -687584
       ],
       "webhookId": "a04e67a2-d147-4b04-b95a-3a8d0f51e315",
       "credentials": {
@@ -1406,13 +1418,13 @@
         },
         "options": {}
       },
-      "id": "93f11644-d897-4b2f-b5b5-06da7dc28c4d",
+      "id": "22d1ef70-c1f8-4998-9efa-e2ab5dc6bbc9",
       "name": "Reiniciar Sesion",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -75440,
-        -688048
+        -76160,
+        -688064
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -1428,13 +1440,13 @@
         "text": "Pedido cancelado. Escribe /start cuando quieras empezar de nuevo.",
         "additionalFields": {}
       },
-      "id": "fc03631e-1483-4d26-aeb1-3a9866b54204",
+      "id": "97873540-bf8b-421b-9e3e-bd69e19418cc",
       "name": "Notificar Cancelacion",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -76112,
-        -687568
+        -76832,
+        -687584
       ],
       "webhookId": "8d666a70-7289-4b39-8f04-705809f48855",
       "credentials": {
@@ -1475,13 +1487,13 @@
         },
         "options": {}
       },
-      "id": "09628171-6ed7-434f-9294-f8463632d175",
+      "id": "42c1c292-8d83-4d5d-81b2-a4326f8670d7",
       "name": "Reiniciar Sesion Cancelada",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -75888,
-        -687568
+        -76608,
+        -687584
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -1495,13 +1507,13 @@
       "parameters": {
         "jsCode": "const entrada = $('Normalizar Update').first().json;\nconst partes = entrada.callbackData.split('_'); // ['avanzar', 'PED-...', 'PREP']\nconst idPedido = partes[1];\nconst codigo = partes[2];\n\nconst ETIQUETAS = {\n  PREP: '👨‍🍳 En preparación',\n  LISTO: '🔔 Listo para entrega',\n  CAMINO: '🛵 En camino',\n  ENTREGADO: '✅ Entregado',\n  CANCELAR: '❌ Cancelado por cocina'\n};\n\nreturn [{\n  json: {\n    chatIdCocina: entrada.chatId,\n    idPedido,\n    codigoEstado: codigo,\n    nuevoEstado: ETIQUETAS[codigo] || codigo\n  }\n}];"
       },
-      "id": "fa72f8ea-1746-4c0d-895e-94dff53904f2",
+      "id": "f895549c-47a8-4477-a4af-b04d89a268b7",
       "name": "Parsear Avance",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -77008,
-        -689200
+        -77728,
+        -689216
       ]
     },
     {
@@ -1526,13 +1538,13 @@
         },
         "options": {}
       },
-      "id": "5ac18274-4736-47df-9a51-546a013d199a",
+      "id": "1d655899-7aad-4700-b441-1ca4e79d9aab",
       "name": "Leer Pedido Por Id",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -76784,
-        -689200
+        -77504,
+        -689216
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -1570,13 +1582,13 @@
         },
         "options": {}
       },
-      "id": "e68cc1c5-e699-47ce-b755-204c6356682e",
+      "id": "195c42be-38d2-4845-8fb5-58510968c942",
       "name": "Actualizar Estado Pedido",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -76560,
-        -689200
+        -77280,
+        -689216
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -1592,13 +1604,13 @@
         "text": "=📢 Actualización de tu pedido {{ $('Parsear Avance').first().json.idPedido }}:\n\nEstado actual: {{ $('Parsear Avance').first().json.nuevoEstado }}",
         "additionalFields": {}
       },
-      "id": "a28b729f-ef9d-497f-a7d0-11b31a012d24",
+      "id": "3b1087bc-5f01-4d14-9974-a1a0b7c2100b",
       "name": "Notificar Cliente Avance",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -76336,
-        -689296
+        -77056,
+        -689312
       ],
       "webhookId": "00e81dab-bc9c-4590-b138-003547650c77",
       "credentials": {
@@ -1614,13 +1626,13 @@
         "text": "=✅ Estado del pedido {{ $('Parsear Avance').first().json.idPedido }} actualizado a: {{ $('Parsear Avance').first().json.nuevoEstado }}",
         "additionalFields": {}
       },
-      "id": "e73add2e-832f-45ef-8d71-2c2114ca0fc8",
+      "id": "e619379c-22ef-49d5-8ff5-87c628ac3fca",
       "name": "Confirmar Avance En Cocina",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -76336,
-        -689104
+        -77056,
+        -689120
       ],
       "webhookId": "384255cb-235f-40a6-adcf-aaa563c47dc0",
       "credentials": {
@@ -1634,13 +1646,13 @@
       "parameters": {
         "jsCode": "const itemsMenu = $input.all();\nconst itemsCarrito = $('Separar Items Carrito').all();\n\nreturn itemsMenu.map((item, idx) => {\n  const stockActual = Number(item.json.stock || item.json.Stock || 0);\n  const nombreProd = String(item.json.nombre || item.json.Nombre || (itemsCarrito[idx]?.json?.carrito?.nombre) || '');\n  const itemC = itemsCarrito.find(c => String(c.json.carrito?.nombre || '').trim().toLowerCase() === nombreProd.trim().toLowerCase()) || itemsCarrito[idx];\n  const cantidadComprada = Number(itemC?.json?.carrito?.cantidad || 1);\n  const nuevoStock = Math.max(0, stockActual - cantidadComprada);\n\n  return {\n    json: {\n      nombre: nombreProd,\n      stock: nuevoStock\n    }\n  };\n});"
       },
-      "id": "060be1d6-6513-4404-8e67-e8e65f15fa2d",
+      "id": "7f7bfa31-eb0e-4389-87c9-f19b36969c01",
       "name": "Calcular Descuento Stock",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -75216,
-        -687760
+        -75936,
+        -687776
       ]
     },
     {
@@ -1703,13 +1715,13 @@
           "fallbackOutput": "extra"
         }
       },
-      "id": "f88d7b23-0c29-4319-8f61-397bc56b5a04",
+      "id": "4c78e061-517e-4aec-aba4-c47b263ce9ff",
       "name": "Enrutar Tipo Mensaje",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3,
       "position": [
-        -77232,
-        -689216
+        -77952,
+        -689232
       ]
     },
     {
@@ -1734,13 +1746,13 @@
         },
         "options": {}
       },
-      "id": "c02bb459-867a-4e61-a021-fab0d49a5091",
+      "id": "b6acd105-1315-4deb-a524-230bc11a25d8",
       "name": "Leer Pedidos Para Cancelar",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -77008,
-        -689584
+        -77728,
+        -689600
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -1754,13 +1766,13 @@
       "parameters": {
         "jsCode": "const entrada = $('Normalizar Update').first().json;\nconst rawItems = items.map(i => i.json).filter(p => Object.keys(p).length > 0 && (p.id_pedido || p.idPedido));\n\nif (rawItems.length === 0) {\n  return [{ json: { ...entrada, caso: 'SIN_PEDIDOS', mensaje: 'No tienes ningún pedido activo en este momento.' } }];\n}\n\n// Obtenemos el pedido más reciente del cliente\nconst ultimo = rawItems[rawItems.length - 1];\nconst idPedido = ultimo.id_pedido || ultimo.idPedido;\nconst estado = String(ultimo.estado || '').toLowerCase();\n\n// Si ya está en camino, listo para entrega o entregado -> BLOQUEAR\nif (estado.includes('camino') || estado.includes('entregado') || estado.includes('listo')) {\n  return [{ json: {\n    ...entrada,\n    caso: 'BLOQUEADO',\n    idPedido,\n    mensaje: `⚠️ Tu pedido ${idPedido} ya está en camino o listo para entrega (${ultimo.estado}) y no se puede cancelar directamente. Comunícate con atención si necesitas ayuda.`\n  } }];\n}\n\n// Si ya estaba cancelado\nif (estado.includes('cancelado')) {\n  return [{ json: {\n    ...entrada,\n    caso: 'YA_CANCELADO',\n    idPedido,\n    mensaje: `El pedido ${idPedido} ya se encuentra cancelado.`\n  } }];\n}\n\n// Si está en preparación o nuevo -> PERMITIR CANCELACIÓN\nreturn [{ json: {\n  ...entrada,\n  caso: 'PERMITIDO',\n  idPedido,\n  detalles: ultimo.detalles || '',\n  nuevoEstado: '❌ Cancelado por el cliente'\n} }];"
       },
-      "id": "2be684a6-870a-4f26-9392-e382b4b2fa46",
+      "id": "6a8936db-242a-40a5-a66d-a96b209cad92",
       "name": "Evaluar Cancelacion",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -76784,
-        -689584
+        -77504,
+        -689600
       ]
     },
     {
@@ -1786,13 +1798,13 @@
         },
         "options": {}
       },
-      "id": "5bd1158d-4b54-409d-b81d-1503d22a4cfe",
+      "id": "42f6e069-ef06-4efa-9889-5396cb7941d0",
       "name": "Es Cancelable",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        -76560,
-        -689584
+        -77280,
+        -689600
       ]
     },
     {
@@ -1823,13 +1835,13 @@
         },
         "options": {}
       },
-      "id": "82089e94-c7c0-4eac-864e-19f464f1d65c",
+      "id": "52a1549b-34f4-4823-83fa-655289f4fec2",
       "name": "Actualizar Pedido Cancelado",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -76336,
-        -689680
+        -77056,
+        -689696
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -1845,13 +1857,13 @@
         "text": "=🚨 ¡ATENCIÓN COCINA!\n\nEl cliente canceló el pedido {{ $('Evaluar Cancelacion').first().json.idPedido }}.\nDetalles: {{ $('Evaluar Cancelacion').first().json.detalles }}\n\n⛔ Por favor DETENER la preparación.",
         "additionalFields": {}
       },
-      "id": "622a3d50-1145-4cd8-b67b-c1e229d01635",
+      "id": "21c6d625-aa0c-48e1-84bb-d544800c32c6",
       "name": "Avisar Cocina Cancelacion",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -76112,
-        -689776
+        -76832,
+        -689792
       ],
       "webhookId": "a75f3765-4694-45f3-a20b-bf6e7353898b",
       "credentials": {
@@ -1867,13 +1879,13 @@
         "text": "=✅ Tu pedido {{ $('Evaluar Cancelacion').first().json.idPedido }} ha sido cancelado con éxito.",
         "additionalFields": {}
       },
-      "id": "7f56d6ef-0238-41ee-8f3e-c7823af6a34a",
+      "id": "5a1433c8-cb64-4bae-8831-0b224a570988",
       "name": "Confirmar Cancelacion Cliente",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -76112,
-        -689392
+        -76832,
+        -689408
       ],
       "webhookId": "64618534-66b7-4f04-adad-3211a5dabd14",
       "credentials": {
@@ -1889,13 +1901,13 @@
         "text": "={{ $json.mensaje }}",
         "additionalFields": {}
       },
-      "id": "1e7a9346-9584-4415-a76e-4a6333d5c069",
+      "id": "c3f3b7ef-860e-4474-b2f6-1a5e30e50bb4",
       "name": "Notificar Rechazo Cancelacion",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -76336,
-        -689488
+        -77056,
+        -689504
       ],
       "webhookId": "0c29b2d9-d8a4-42ad-b92c-eb8b8f83c46f",
       "credentials": {
@@ -1916,13 +1928,13 @@
           ]
         }
       },
-      "id": "edf2b1fc-e760-428e-bbb2-32130a2f497d",
+      "id": "ce5edbcc-4038-4647-acec-6a2509649ab7",
       "name": "Schedule Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -77680,
-        -687344
+        -78400,
+        -687360
       ]
     },
     {
@@ -1939,13 +1951,13 @@
         },
         "options": {}
       },
-      "id": "9b924e0d-5fba-4abd-993a-ee101d204c60",
+      "id": "ac7860e9-f2a2-4e40-a207-d3ce1ffba4e1",
       "name": "Leer Pedidos Preparacion",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -77456,
-        -687344
+        -78176,
+        -687360
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -1956,15 +1968,15 @@
     },
     {
       "parameters": {
-        "jsCode": "const ahora = new Date();\nconst atascados = items\n  .map(i => i.json)\n  .filter(p => p.estado === 'En preparación')\n  .filter(p => {\n    const marcaTiempo = new Date(`${p.fecha}T${p.hora}`);\n    const minutos = (ahora - marcaTiempo) / 60000;\n    return Number.isFinite(minutos) && minutos > 45;\n  });\nconst idsAtascados = atascados.map(p => p.id_pedido);\nreturn [{ json: { idsAtascados, cantidad: idsAtascados.length, fechaEjecucion: ahora.toISOString() } }];"
+        "jsCode": "const ahora = new Date();\n\nconst atascados = items\n  .map(i => i.json)\n  .filter(p => {\n    const estado = String(p.estado || '').toLowerCase();\n    return estado.includes('preparación') || estado.includes('preparacion');\n  })\n  .filter(p => {\n    try {\n      if (!p.fecha || !p.hora) return false;\n      const marcaTiempo = new Date(`${p.fecha}T${p.hora}-05:00`);\n      const minutos = (ahora - marcaTiempo) / 60000;\n      return Number.isFinite(minutos) && minutos > 45;\n    } catch (e) {\n      return false;\n    }\n  });\n\nconst idsAtascados = atascados.map(p => p.id_pedido || p.idPedido).filter(Boolean);\n\nreturn [{\n  json: {\n    idsAtascados,\n    cantidad: idsAtascados.length,\n    fechaEjecucion: ahora.toISOString()\n  }\n}];"
       },
-      "id": "3834fd8d-ced1-46e8-ab52-d94eaba8089d",
+      "id": "1d6eb557-668c-41ae-a4c7-6ecfeb6764d1",
       "name": "Filtrar Pedidos Atascados",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -77232,
-        -687344
+        -77952,
+        -687360
       ]
     },
     {
@@ -1990,26 +2002,26 @@
         },
         "options": {}
       },
-      "id": "ba884da8-aac9-4ed6-9cec-759926ef43bc",
+      "id": "8b0614e1-829c-46bf-b51f-94092c6d73be",
       "name": "Hay Pedidos Atascados",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        -77008,
-        -687344
+        -77728,
+        -687360
       ]
     },
     {
       "parameters": {
         "jsCode": "const d = $json;\nconst listaIds = d.idsAtascados.join(', ');\nconst mensaje = `🚨 ATENCIÓN: Los siguientes pedidos llevan más de 45 min en preparación: [${listaIds}]. Favor verificar en cocina.`;\nreturn [{ json: { ...d, mensaje } }];"
       },
-      "id": "ba86266c-3e89-4751-adba-ac038f56abc3",
+      "id": "db3d3ca2-7206-4974-ae4e-94b304562195",
       "name": "Armar Mensaje Alerta",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -76784,
-        -687344
+        -77504,
+        -687360
       ]
     },
     {
@@ -2018,13 +2030,13 @@
         "text": "={{ $json.mensaje }}",
         "additionalFields": {}
       },
-      "id": "7ed388f7-a4c4-43d5-a1de-9bf0d346c23f",
+      "id": "76d3af3e-4aad-49ee-9bd7-55371948dea0",
       "name": "Notificar Supervisor",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -76560,
-        -687344
+        -77280,
+        -687360
       ],
       "webhookId": "14650330-f228-43b6-ac03-38e339edef1a",
       "credentials": {
@@ -2099,13 +2111,13 @@
         },
         "options": {}
       },
-      "id": "4e71bb63-c7db-4d8f-887b-5be80df80f07",
+      "id": "4f2a2eef-a381-4266-a970-b7c05c432f89",
       "name": "Registrar En Logs",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -76336,
-        -687344
+        -77056,
+        -687360
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -2653,7 +2665,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "ee7ae582-d095-42c4-b9fa-068e464aadef",
+  "versionId": "47968f3c-3f0a-4ab4-aff2-aeea917d168c",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "d58ba6ef38ee8722866036e2014ee6235de2730a7fab39af85b2d7449a504ce5"
