@@ -561,7 +561,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const entrada = $('Procesar Sesion').first().json;\nconst raw = entrada.callbackData || entrada.texto || '';\nconst valor = raw.replace('prod_', '').trim();\nconst num = parseInt(valor, 10);\n\nlet productos = [];\ntry {\n  productos = JSON.parse(entrada.productoTemp || '[]');\n} catch (e) {\n  productos = [];\n}\n\nlet prodElegido = null;\nif (!isNaN(num) && num >= 1 && num <= productos.length) {\n  prodElegido = productos[num - 1];\n} else if (productos.some(p => p.id_producto === valor)) {\n  prodElegido = productos.find(p => p.id_producto === valor);\n} else if (productos.length > 0) {\n  prodElegido = productos[0];\n} else {\n  prodElegido = { id_producto: valor, nombre: 'Producto ' + valor, precio: 0 };\n}\n\nreturn [{\n  json: {\n    ...entrada,\n    productoTemp: JSON.stringify(prodElegido)\n  }\n}];"
+        "jsCode": "const entrada = $('Procesar Sesion').first().json;\nconst raw = entrada.callbackData || entrada.texto || '';\nconst valor = raw.replace('prod_', '').trim();\nconst num = parseInt(valor, 10);\n\nlet productos = [];\ntry {\n  productos = JSON.parse(entrada.productoTemp || '[]');\n} catch (e) {\n  productos = [];\n}\n\nlet prodElegido = null;\n\nif (!isNaN(num) && num >= 1 && num <= productos.length) {\n  prodElegido = productos[num - 1];\n} else if (productos.some(p => String(p.id_producto) === String(valor))) {\n  prodElegido = productos.find(p => String(p.id_producto) === String(valor));\n} else if (productos.length > 0) {\n  prodElegido = productos[0];\n} else {\n  prodElegido = { \n    id_producto: valor, \n    nombre: 'Producto ' + valor, \n    precio: 0 \n  };\n}\n\nreturn [{\n  json: {\n    ...entrada,\n    productoTemp: JSON.stringify(prodElegido)\n  }\n}];"
       },
       "id": "c7e6d722-276e-4843-a63b-4cca3f1c06cc",
       "name": "Extraer Producto",
@@ -2653,7 +2653,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "0b4f54f8-9c77-4296-841e-3839b56a487e",
+  "versionId": "ee7ae582-d095-42c4-b9fa-068e464aadef",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "d58ba6ef38ee8722866036e2014ee6235de2730a7fab39af85b2d7449a504ce5"
